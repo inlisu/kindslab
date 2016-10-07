@@ -4,6 +4,7 @@ require_once '../engine/modules/tech/includes/init.php';
 echo "<pre>";
 //task_overtime(); /* It is fail function task_overtime with sql error. Call DISABLED*/
 checkstoppedActions();
+
 //sched_lowtime(); incorrect works 
 skipping_task();
 delete_old_pics();
