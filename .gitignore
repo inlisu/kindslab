@@ -1,6 +1,12 @@
 .idea
 node_modules/
 backup/
+down/
+myad/
+ss/uploads/
+ss/usage/
+*.bat
+*.zip
 *.log
 dist/*
 engine/data/dbconfig.php
