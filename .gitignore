@@ -1,14 +1,15 @@
 .idea
 node_modules/
-backup/
+/backup/
 down/
-myad/
+myad/*
 ss/uploads/
 ss/usage/
 *.bat
 *.zip
 *.log
 dist/*
+engine/cashe/
 engine/data/dbconfig.php
 engine/modules/engine/data/dbconfig.php
 engine/modules/tech/includes/karatinit.php
