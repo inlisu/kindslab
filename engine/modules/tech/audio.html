@@ -1,0 +1,15 @@
+<html>
+	<head>
+		<title>Google TTS test</title>
+		<script src="http://oleg.karatunov.net/engine/modules/tech/jquery.js"></script>
+		<script>
+			$.get("http://oleg.karatunov.net/engine/modules/tech/audio.php?user_id=3", function(data){
+				var audio = new Audio();
+				audio.src ='http://translate.google.com/translate_tts?ie=utf-8&tl=ru&q=Привет';
+				audio.play();
+			});
+		</script>
+	</head>
+	<body>
+	</body>
+</html>

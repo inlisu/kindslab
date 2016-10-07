@@ -1,0 +1,43 @@
+<html>
+	<head>
+		<title>setInterval test</title>
+		<script src="http://oleg.karatunov.net/engine/modules/tech/jquery.js"></script>
+		<script>
+			$(document).ready(function() {
+				var seconds = 10;
+				var milliseconds = 10000;
+				$("#seconds").text(seconds);
+				function massage() {
+					alert(milliseconds);
+					setTimeout(arguments.callee, milliseconds);
+				}
+				$("#minus").click(function() {
+					seconds = seconds - 10;
+					milliseconds = milliseconds - 10000;
+					$("#seconds").text(seconds);
+					if(seconds < 10) {
+						$("#error").show("slow", function() {
+							setTimeout(function() {
+								$("#error").hide("slow");
+							}, 3000);
+						});
+						seconds = seconds + 10;
+						$("#seconds").text(seconds);
+					}
+				});
+				$("#plus").click(function() {
+					seconds = seconds + 10;
+					milliseconds = milliseconds + 10000;
+					$("#seconds").text(seconds);
+				});
+				massage();
+			});
+		</script>
+	</head>
+	<body>
+		Каждые <span id="seconds"></span> секунд.
+		<hr>
+		<button id="minus">-10</button><button id="plus">+10</button>
+		<p hidden id="error" style="color: red">ERROR!!!</p>
+	</body>
+</html>

@@ -1,0 +1,9 @@
+.idea
+node_modules/
+backup/
+*.log
+dist/*
+engine/data/dbconfig.php
+engine/modules/engine/data/dbconfig.php
+engine/modules/tech/includes/karatinit.php
+engine/modules/tech/includes/init.php
