@@ -97,11 +97,6 @@ echo('Ok');
 function checkstoppedActions(){
 	echo "Start:\tcheckstoppedActions:".date('d/m/Y H:i:s')."\n";
 	if((int)date("G")>18) return;
-	$rs_rule = mysql_query("select id,rule,payment from rules where id='1'") or die("Query Error:select id,rule,payment from rules where id='1'\n");
-	if($rs_rule) {
-
-		$rs_rule = mysql_fetch_assoc($rs_rule);
-		/*var_dump($rs_rule);*/
 
 		/* SELECT LAST ACTION FOR EACH USER */
 		$sSQL = "select user_id,max(time_start) as sttime 
@@ -129,9 +124,11 @@ function checkstoppedActions(){
 
 		$rs = mysql_query($sSQL) or die("Query Error:" . $sSQL . "\n");
 		while ($r = mysql_fetch_assoc($rs)) {
-			var_dump($r);
-			/* echo ("(".date("Y-m-d H:i:s",time()).")".time()." - (".date("Y-m-d H:i:s",strtotime($r['sttime'])).")".strtotime($r['sttime'])."=".(time() - strtotime($r['sttime'])) )."\n";*/
+			//var_dump($r);
+			echo $r["user_id"].":".date("Y-m-d H:i:s",time())." - ".date("Y-m-d H:i:s",strtotime($r['sttime']))."orig:".$r['sttime']."|".(time()-strtotime($r['sttime']))."<br/>\n";
+			//echo ("(".date("Y-m-d H:i:s",time()).")".time()." - (".date("Y-m-d H:i:s",strtotime($r['sttime'])).")".strtotime($r['sttime'])."=".(time() - strtotime($r['sttime'])) )."\n";*/
 			if (time() - strtotime($r['sttime']) >= 180) {
+				echo ">180 =>".print_r($r,true)."\n<br />";
 				/* Если задаче больше 3 минут - она нам интересна */
 				/* Смотрим time_end и одновременно в violation на предмет есть ли уже за текущую дату замечание */
 				$sSQL = "select a.id,a.time_end , b.id as violation_id
@@ -140,15 +137,33 @@ function checkstoppedActions(){
 								   b.user_id = a.user_id AND
 								   b.`date_creation` BETWEEN '" . date("Y-m-d") . " 00:00:00' AND '" . date("Y-m-d") . " 23:59:59' 
 						 where a.user_id='" . $r['user_id'] . "' and a.time_start='" . $r['sttime'] . "' Limit 0,1 ";
+				/*echo "<hr/>".$sSQL."<hr/>";*/
 				$rls = mysql_query($sSQL) or die("Query Error:" . $sSQL . "\n");
 				while ($rl = mysql_fetch_assoc($rls)) {
+					$longTm = ($rl['time_end']=='0000-00-00 00:00:00' || empty($rl['time_end'])) ? 0 : strtotime($rl['time_end']);
+					echo "if (\$rl['time_end'](".$rl['time_end'].") > '0000-00-00 00:00:00' && (time()".time()." - strtotime(\$rl['time_end'])".$longTm.")(".(time() - $longTm ).") >= 180 && ".( (int)date('G',$longTm ) )."<18 && !\$rl['violation_id'](".$rl['violation_id'].")  ) - условие не проходит\n<br/> ";
 
 					/* echo "IF ".$rl['time_end']." > '0000-00-00 00:00:00' && ".(time() - strtotime($rl['time_end']) )." >= 180 && ".$rl['violation_id']."\n"; */
-					if ($rl['time_end'] > '0000-00-00 00:00:00' && (time() - strtotime($rl['time_end']) ) >= 180 && (int)date('G',strtotime($rl['time_end']) )<18 && !$rl['violation_id'] ) {
+					if ($rl['time_end'] > '0000-00-00 00:00:00' && (time() - $longTm ) >= 180 && (int)date('G',$longTm )<18 && !$rl['violation_id'] ) {
 						/* Если задание окончено более трех минут назад и нет замечания за сегодня, то ставим замечание id=1 */
 						var_dump($rl);
 						echo "UID:".$r['user_id']." - Fault\n";
-						$sSQL = "insert into violation 
+
+						$rs_rule = mysql_query(
+									   " select id,rule,payment 
+										 from rules 
+										 where user_id='".$r['user_id']."' 
+										  and `rule` like '1.%'  Limit 0,1"
+						) or die("Query Error:select id,rule,payment from rules where id='1'\n");
+
+						if($rs_rule) {
+
+							$rs_rule = mysql_fetch_assoc($rs_rule);
+							/*var_dump($rs_rule);*/
+
+
+
+							$sSQL = "insert into violation 
                             (
 									`rule_id`, 
 									`user_id`, 
@@ -167,14 +182,14 @@ function checkstoppedActions(){
 								  '".$rl['id']."'
                              ) ";
 
-						mysql_query($sSQL) or die("Query Error:" . $sSQL . "\n");
-
+							mysql_query($sSQL) or die("Query Error:" . $sSQL . "\n");
+						}//if($rs_rule) {
 					}
 
 				}//while ($rl = mysql_fetch_assoc($rls)) {
 			}//if (time() - strtotime($r['sttime']) >= 180) {
 		}//while ($r = mysql_fetch_assoc($rs)) {
-	}//if($rs_rule) {
+
 
 
 
